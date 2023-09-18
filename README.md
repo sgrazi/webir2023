@@ -2,6 +2,27 @@
 
 Aplicacion para realizar lookups con la API de Spotify.
 
+## Diseño
+
+### Frontend
+
+![UI con requisitos](diseño-front.jpg)
+
+1. Selector de tipos, se indica que tipo de resultados se busca. Si no se selecciona por lo menos 1 el buscador no se habilita
+2. Buscador principal para ingresar su query
+3. Indicador de filtro no disponible. Tooltip que indica por que este input se desactivo
+4. Filtros disponibles
+5. Filtro por rango de años
+
+![Resultados de query](diseño-front-resultados.jpg)
+
+1. Indicador de limite de resultados
+2. Paginación de resultados
+
+### Backend
+
+![Arquitectura](diseño-back.png)
+
 ## Setup
 
 ### Spotify
