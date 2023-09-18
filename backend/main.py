@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.test import router
+from routes.spotify import router
 
 app = FastAPI()
 
-app.include_router(router, prefix="/test")
+app.include_router(router, prefix="/spotify")
 
 # Configure CORS settings
 origins = ["http://localhost:3000"]
