@@ -36,7 +36,7 @@ export SPOTIPY_CLIENT_ID=<valor>
 export SPOTIPY_CLIENT_SECRET=<valor>
 ```
 
-Para usar "Webir Spotify Lookup" los valores estan en `backend/clients/spotify_client.py``
+Para usar "Webir Spotify Lookup" los valores estan en `backend/src/clients/spotify_client.py``
 
 ### Backend
 
@@ -51,7 +51,7 @@ pip3 install fastapi uvicorn
 Para levantar el backend
 
 ```
-cd backend
+cd backend/src
 uvicorn main:app --reload
 ```
 
