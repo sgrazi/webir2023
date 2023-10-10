@@ -1,5 +1,4 @@
 services:
-
   webir_db:
     container_name: postgresql_db
     image: postgres:alpine
@@ -30,7 +29,9 @@ services:
 
   webir_backend:
     container_name: backend
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
     command: bash -c "uvicorn main:app --host 0.0.0.0 --port 8080 --reload"
     volumes:
       - ./src:/src
@@ -39,6 +40,20 @@ services:
     depends_on:
       - webir_db
     restart: always
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:8.10.2
+    build:
+      context: .
+      dockerfile: Dockerfile.elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    ports:
+      - 9200:9200
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
 
 volumes:
   db-data:
