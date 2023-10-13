@@ -31,11 +31,9 @@ def get_endpoint1(
     query: str,
     types: list = Query(None),
     limit: int = 10,
-    offset: int = 0,
     album: str = "",
     genre: str = "",
     artist: str = "",
-    track: str = "",
     start_year: int = Query(..., description="Start year of the range"),
     end_year: int = Query(..., description="End year of the range"),
     new: bool = False,
@@ -57,6 +55,6 @@ def get_endpoint1(
     # procesar la query con los filtros de campo indicados (album, genre, artist, track, start_year, end_year, new, hipster)
 
     response = spotify_client.search(
-        q=query, limit=limit, offset=offset, type=types, market=None
+        q=query, limit=limit, type=types, market=None
     )
     return response
