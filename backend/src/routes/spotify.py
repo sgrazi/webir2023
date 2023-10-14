@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Query
+import datetime
+from fastapi import APIRouter, Query, HTTPException
 from clients.spotify_client import spotify_client
 
 router = APIRouter()
@@ -29,13 +30,15 @@ Parameters:
 @router.get("/search")
 def get_endpoint1(
     query: str,
-    types: list = Query(None),
+    types: list[str] = Query(
+        description="List of types", example=["artist", "album", "track"]
+    ),
     limit: int = 10,
     album: str = "",
     genre: str = "",
     artist: str = "",
-    start_year: int = Query(..., description="Start year of the range"),
-    end_year: int = Query(..., description="End year of the range"),
+    start_year: int = Query(default=2000, description="Start year of the range"),
+    end_year: int = Query(default=2023, description="End year of the range"),
     new: bool = False,
     hipster: bool = False,
 ):
@@ -53,8 +56,26 @@ def get_endpoint1(
 
     # procesar los tipos a un unico string, los tipos se separan por coma
     # procesar la query con los filtros de campo indicados (album, genre, artist, track, start_year, end_year, new, hipster)
+    current_year = datetime.date.today().year
+    if start_year < 0 or end_year < 0:
+        raise HTTPException(
+            status_code=400, detail=f"start_year y end_year tienen que ser >= 0"
+        )
+    if start_year > end_year or start_year > current_year or current_year < end_year:
+        raise HTTPException(
+            status_code=400, detail=f"start_year y end_year tienen valores invalidos"
+        )
+    if not types:
+        raise HTTPException(status_code=400, detail=f"types no puede ser vacio")
 
-    response = spotify_client.search(
-        q=query, limit=limit, type=types, market=None
-    )
+    for elem in types:
+        if elem != "album" and elem != "artist" and elem != "track":
+            raise HTTPException(
+                status_code=400,
+                detail=f"Los elementos de type no son validos.",
+            )
+    query_types: str = ",".join(types)
+
+    response = spotify_client.search(q=query, limit=limit, type=types, market=None)
+
     return response
