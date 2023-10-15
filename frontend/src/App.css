@@ -2,11 +2,11 @@
   display: grid;
   grid-template-rows: auto 1fr;
   height: 100vh;
-  background-color: #282828;
+  background-color: #2e2e2c;
 }
 
 .heading {
-  color: #b3b3b3;
+  color: #2e2e2c;
 }
 
 .navbar {
