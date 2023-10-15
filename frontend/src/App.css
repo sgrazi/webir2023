@@ -1,13 +1,18 @@
 .App {
-  text-align: center;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
   background-color: #282828;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
 .heading {
   color: #b3b3b3;
+}
+
+.navbar {
+  grid-row: 1;
+}
+
+.main-view {
+  grid-row: 2;
 }
