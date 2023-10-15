@@ -9,35 +9,39 @@ export function TestComponent() {
   const [imageURI, setImageURI] = useState(undefined);
 
   const queryBackend = () => {
-    axios
-      .get("http://localhost:8000/test/spotify_track?artist=Billie Eilish&track=Bad Guy")
-      .then((response) => {
-        setSong(response.data.tracks.items[0].name);
-        setImageURI(response.data.tracks.items[0].album.images[0].url);
-        setArtist(response.data.tracks.items[0].album.artists[0].name);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    // axios
+    //   .get(
+    //     "http://localhost:8000/test/spotify_track?artist=Billie Eilish&track=Bad Guy"
+    //   )
+    //   .then((response) => {
+    //     // setSong(response.data.tracks.items[0].name);
+    //     // setImageURI(response.data.tracks.items[0].album.images[0].url);
+    //     // setArtist(response.data.tracks.items[0].album.artists[0].name);
+    setSong("Estoy en mi Darkera");
+    setImageURI("https://unavatar.io/instagram/easykid");
+    setArtist("EasyKid");
+    // })
+    // .catch((error) => {
+    //   console.error(error);
+    // });
   };
-
   return (
     <div className="row-container">
       <Tooltip title="q='artist:Billie Eilish track:Bad Guy', type='track'">
-      <Button variant="outlined" color="success" onClick={queryBackend}>
-        Do an API query
-      </Button>
+        <Button variant="outlined" color="success" onClick={queryBackend}>
+          Do an API query
+        </Button>
       </Tooltip>
       {song && imageURI ? (
         <div className="column-container">
-          <Grid container style={{width:"800px"}}>
+          <Grid container style={{ width: "800px" }}>
             <Grid item xs={7}>
               <Paper
                 elevation={3}
                 style={{
                   backgroundColor: "#1DB954",
                   height: "100%",
-                  flexDirection: 'column',
+                  flexDirection: "column",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
