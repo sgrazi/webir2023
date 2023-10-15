@@ -1,5 +1,6 @@
 import datetime
 from fastapi import APIRouter, Query, HTTPException
+
 from clients.spotify_client import spotify_client
 
 router = APIRouter()
@@ -33,12 +34,13 @@ def get_endpoint1(
     types: list[str] = Query(
         description="List of types", example=["artist", "album", "track"]
     ),
-    limit: int = 10,
+    limit: int = Query(default=10, description="Number of retrived elements"),
+    offset: int = Query(default=0, description="Offset for starting index of query"),
     album: str = "",
     genre: str = "",
     artist: str = "",
-    start_year: int = Query(default=2000, description="Start year of the range"),
-    end_year: int = Query(default=2023, description="End year of the range"),
+    start_year: int = Query(default=None, description="Start year of the range"),
+    end_year: int = Query(default=None, description="End year of the range"),
     new: bool = False,
     hipster: bool = False,
 ):
@@ -56,6 +58,74 @@ def get_endpoint1(
 
     # procesar los tipos a un unico string, los tipos se separan por coma
     # procesar la query con los filtros de campo indicados (album, genre, artist, track, start_year, end_year, new, hipster)
+    # try:
+    if start_year and end_year:
+        valid_year_checks(start_year, end_year)
+        query += f"%20year:{start_year}-{end_year}"
+
+    type_checks(types)
+    query_types: str = ",".join(types)
+    (album_filter, genre_filter, artist_filter) = filters_checks(
+        types, album, genre, artist
+    )
+    if album_filter:
+        query += f"%20album:{album}"
+    if genre_filter:
+        query += f"%20genre:{genre}"
+    if artist_filter:
+        query += f"%20artist:{artist}"
+
+    hipster_track_checks(types, new, hipster)
+    if new:
+        query += f"%20tag:new"
+    if hipster:
+        query += f"%20tag:hipster"
+    limt_offset_checks(limit, offset)
+
+    response = spotify_client.search(
+        q=query, limit=10, type=query_types, market=None, offset=0
+    )
+
+    return response
+
+
+# except Exception as inst:
+#     raise HTTPException(status_code=500, detail=f"{inst}")
+
+
+def limt_offset_checks(limit, offset):
+    if not (1 <= limit <= 50) and not (0 <= offset <= 1000):
+        raise HTTPException(
+            status_code=400, detail=f"limit o offset tienen valores invalidos"
+        )
+    return True
+
+
+def hipster_track_checks(types, new, hipster):
+    if hipster or new and not any(elem == "album" for elem in types):
+        err = "hipster" if not (hipster) else "new"
+        raise HTTPException(
+            status_code=400, detail=f"{err} no es valido con el campo type"
+        )
+    return True
+
+
+def filters_checks(types, album, genre, artist):
+    genre_filter, album_filter, artist_filter = False, False, False
+    if genre and not any((elem == "album" and elem == "track") for elem in types):
+        raise HTTPException(status_code=400, detail=f"El filtro genre no es valido")
+    genre_filter = bool(genre)
+    if album and not any((elem == "album" and elem == "track") for elem in types):
+        raise HTTPException(status_code=400, detail=f"El filtro album no es valido")
+    album_filter = bool(album)
+    if artist and not any(elem == "track" for elem in types):
+        raise HTTPException(status_code=400, detail=f"El filtro artist no es valido")
+    artist_filter = bool(artist)
+
+    return (genre_filter, album_filter, artist_filter)
+
+
+def valid_year_checks(start_year, end_year):
     current_year = datetime.date.today().year
     if start_year < 0 or end_year < 0:
         raise HTTPException(
@@ -65,6 +135,10 @@ def get_endpoint1(
         raise HTTPException(
             status_code=400, detail=f"start_year y end_year tienen valores invalidos"
         )
+    return True
+
+
+def type_checks(types):
     if not types:
         raise HTTPException(status_code=400, detail=f"types no puede ser vacio")
 
@@ -74,8 +148,4 @@ def get_endpoint1(
                 status_code=400,
                 detail=f"Los elementos de type no son validos.",
             )
-    query_types: str = ",".join(types)
-
-    response = spotify_client.search(q=query, limit=limit, type=types, market=None)
-
-    return response
+    return True
