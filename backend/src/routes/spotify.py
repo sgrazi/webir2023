@@ -29,7 +29,7 @@ Parameters:
 
 
 @router.get("/search")
-def get_endpoint1(
+def get_spotify_search(
     query: str,
     types: list[str] = Query(
         description="List of types", example=["artist", "album", "track"]
@@ -58,42 +58,37 @@ def get_endpoint1(
 
     # procesar los tipos a un unico string, los tipos se separan por coma
     # procesar la query con los filtros de campo indicados (album, genre, artist, track, start_year, end_year, new, hipster)
-    # try:
     if start_year and end_year:
         valid_year_checks(start_year, end_year)
-        query += f"%20year:{start_year}-{end_year}"
+        query += f" year:{start_year}-{end_year}"
 
     type_checks(types)
     query_types: str = ",".join(types)
-    (album_filter, genre_filter, artist_filter) = filters_checks(
+    (genre_filter, album_filter, artist_filter) = filters_checks(
         types, album, genre, artist
     )
     if album_filter:
-        query += f"%20album:{album}"
+        query += f" album:{album}"
     if genre_filter:
-        query += f"%20genre:{genre}"
+        query += f" genre:{genre}"
     if artist_filter:
-        query += f"%20artist:{artist}"
+        query += f" artist:{artist}"
 
     hipster_track_checks(types, new, hipster)
     if new:
-        query += f"%20tag:new"
+        query += f" tag:new"
     if hipster:
-        query += f"%20tag:hipster"
-    limt_offset_checks(limit, offset)
+        query += f" tag:hipster"
+    limit_offset_checks(limit, offset)
 
     response = spotify_client.search(
-        q=query, limit=10, type=query_types, market=None, offset=0
+        q=query, limit=limit, type=query_types, market=None, offset=offset
     )
 
     return response
 
 
-# except Exception as inst:
-#     raise HTTPException(status_code=500, detail=f"{inst}")
-
-
-def limt_offset_checks(limit, offset):
+def limit_offset_checks(limit, offset):
     if not (1 <= limit <= 50) and not (0 <= offset <= 1000):
         raise HTTPException(
             status_code=400, detail=f"limit o offset tienen valores invalidos"
@@ -112,10 +107,10 @@ def hipster_track_checks(types, new, hipster):
 
 def filters_checks(types, album, genre, artist):
     genre_filter, album_filter, artist_filter = False, False, False
-    if genre and not any((elem == "album" and elem == "track") for elem in types):
+    if genre and not any((elem == "album" or elem == "track") for elem in types):
         raise HTTPException(status_code=400, detail=f"El filtro genre no es valido")
     genre_filter = bool(genre)
-    if album and not any((elem == "album" and elem == "track") for elem in types):
+    if album and not any((elem == "album" or elem == "track") for elem in types):
         raise HTTPException(status_code=400, detail=f"El filtro album no es valido")
     album_filter = bool(album)
     if artist and not any(elem == "track" for elem in types):
