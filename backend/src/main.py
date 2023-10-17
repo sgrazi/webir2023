@@ -9,7 +9,7 @@ app.include_router(spotify_router, prefix="/spotify")
 app.include_router(elastic_router, prefix="/elastic")
 
 # Configure CORS settings
-origins = ["http://localhost:3000"]
+origins = ["http://localhost:8080"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
