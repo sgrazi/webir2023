@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Grid, Typography, Paper, Tooltip } from "@mui/material";
 import axios from "axios";
 import "./styles.css";
+import CheckboxGroup from "./checkbox_group";
 
 export function TestComponent() {
   const [song, setSong] = useState(undefined);
@@ -25,9 +26,10 @@ export function TestComponent() {
   return (
     <div className="row-container">
       <Tooltip title="q='artist:Billie Eilish track:Bad Guy', type='track'">
-        <Button variant="outlined" color="success" onClick={queryBackend}>
-          Do an API query
-        </Button>
+      <CheckboxGroup items={['albumes', 'artistas', 'canciones']}></CheckboxGroup>
+      <Button variant="outlined" color="success" onClick={queryBackend}>
+        Do an API query
+      </Button>
       </Tooltip>
       {song && imageURI ? (
         <div className="column-container">
