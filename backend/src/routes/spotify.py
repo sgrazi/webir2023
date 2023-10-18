@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Query
+import datetime
+from fastapi import APIRouter, Query, HTTPException
+
 from clients.spotify_client import spotify_client
 
 router = APIRouter()
@@ -27,15 +29,18 @@ Parameters:
 
 
 @router.get("/search")
-def get_endpoint1(
+def get_spotify_search(
     query: str,
-    types: list = Query(None),
-    limit: int = 10,
+    types: list[str] = Query(
+        description="List of types", example=["artist", "album", "track"]
+    ),
+    limit: int = Query(default=10, description="Number of retrived elements"),
+    offset: int = Query(default=0, description="Offset for starting index of query"),
     album: str = "",
     genre: str = "",
     artist: str = "",
-    start_year: int = Query(..., description="Start year of the range"),
-    end_year: int = Query(..., description="End year of the range"),
+    start_year: int = Query(default=None, description="Start year of the range"),
+    end_year: int = Query(default=None, description="End year of the range"),
     new: bool = False,
     hipster: bool = False,
 ):
@@ -53,8 +58,89 @@ def get_endpoint1(
 
     # procesar los tipos a un unico string, los tipos se separan por coma
     # procesar la query con los filtros de campo indicados (album, genre, artist, track, start_year, end_year, new, hipster)
+    if start_year and end_year:
+        valid_year_checks(start_year, end_year)
+        query += f" year:{start_year}-{end_year}"
+
+    type_checks(types)
+    query_types: str = ",".join(types)
+    (genre_filter, album_filter, artist_filter) = filters_checks(
+        types, album, genre, artist
+    )
+    if album_filter:
+        query += f" album:{album}"
+    if genre_filter:
+        query += f" genre:{genre}"
+    if artist_filter:
+        query += f" artist:{artist}"
+
+    hipster_track_checks(types, new, hipster)
+    if new:
+        query += f" tag:new"
+    if hipster:
+        query += f" tag:hipster"
+    limit_offset_checks(limit, offset)
 
     response = spotify_client.search(
-        q=query, limit=limit, type=types, market=None
+        q=query, limit=limit, type=query_types, market=None, offset=offset
     )
+
     return response
+
+
+def limit_offset_checks(limit, offset):
+    if not (1 <= limit <= 50) and not (0 <= offset <= 1000):
+        raise HTTPException(
+            status_code=400, detail=f"limit o offset tienen valores invalidos"
+        )
+    return True
+
+
+def hipster_track_checks(types, new, hipster):
+    if hipster or new and not any(elem == "album" for elem in types):
+        err = "hipster" if not (hipster) else "new"
+        raise HTTPException(
+            status_code=400, detail=f"{err} no es valido con el campo type"
+        )
+    return True
+
+
+def filters_checks(types, album, genre, artist):
+    genre_filter, album_filter, artist_filter = False, False, False
+    if genre and not any((elem == "album" or elem == "track") for elem in types):
+        raise HTTPException(status_code=400, detail=f"El filtro genre no es valido")
+    genre_filter = bool(genre)
+    if album and not any((elem == "album" or elem == "track") for elem in types):
+        raise HTTPException(status_code=400, detail=f"El filtro album no es valido")
+    album_filter = bool(album)
+    if artist and not any(elem == "track" for elem in types):
+        raise HTTPException(status_code=400, detail=f"El filtro artist no es valido")
+    artist_filter = bool(artist)
+
+    return (genre_filter, album_filter, artist_filter)
+
+
+def valid_year_checks(start_year, end_year):
+    current_year = datetime.date.today().year
+    if start_year < 0 or end_year < 0:
+        raise HTTPException(
+            status_code=400, detail=f"start_year y end_year tienen que ser >= 0"
+        )
+    if start_year > end_year or start_year > current_year or current_year < end_year:
+        raise HTTPException(
+            status_code=400, detail=f"start_year y end_year tienen valores invalidos"
+        )
+    return True
+
+
+def type_checks(types):
+    if not types:
+        raise HTTPException(status_code=400, detail=f"types no puede ser vacio")
+
+    for elem in types:
+        if elem != "album" and elem != "artist" and elem != "track":
+            raise HTTPException(
+                status_code=400,
+                detail=f"Los elementos de type no son validos.",
+            )
+    return True
