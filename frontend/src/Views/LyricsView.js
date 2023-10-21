@@ -10,17 +10,18 @@ export function LyricsView() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
+    if (searchQuery !== "")
     // Change the URL and set the results correctly
-    axios
-      .get(
-        "http://localhost:8000/"
-      )
-      .then((response) => {
-        setResults('DSADASDDAD');
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      axios
+        .get(
+          `http://localhost:8080/elastic/search?query=${searchQuery}`
+        )
+        .then((response) => {
+          setResults(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
   };
 
   return (
