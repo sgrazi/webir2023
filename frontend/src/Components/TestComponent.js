@@ -31,6 +31,7 @@ export function TestComponent() {
         console.error(error);
       });
   };
+
   return (
     <div className="row-container">
       <Tooltip title="q='artist:Billie Eilish track:Bad Guy', type='track'">

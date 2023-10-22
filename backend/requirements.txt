@@ -1,3 +1,5 @@
 Spotipy
 fastapi
 uvicorn
+Elasticsearch
+python-decouple
