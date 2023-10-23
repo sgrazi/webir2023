@@ -7,13 +7,15 @@ export const SearchField = ({
   field,
   handleFieldChange,
   placeholder,
+  name,
 }) => {
   return (
     <TextField
       disabled={isDisabled}
+      name={name}
       variant="outlined"
       value={field}
-      onChange={(e) => handleFieldChange(e.target.value)}
+      onChange={(e) => handleFieldChange(e.target)}
       placeholder={placeholder}
       size="small"
       style={{

@@ -37,7 +37,7 @@
   grid-template-rows: auto 1fr;
   gap: 30px;
   margin-top: 20px;
-  width: 60%;
+  /* width: 50%; */
 }
 
 .results-header {
