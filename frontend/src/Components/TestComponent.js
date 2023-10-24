@@ -5,6 +5,14 @@ import "./styles.css";
 import CheckboxGroup from "./checkbox_group";
 
 export function TestComponent() {
+  const items = {
+    album: false,
+    cancion: false,
+    artista: false,
+  };
+
+  const [checkedItems, setCheckedItems] = useState(items);
+
   const [song, setSong] = useState(undefined);
   const [artist, setArtist] = useState(undefined);
   const [imageURI, setImageURI] = useState(undefined);
@@ -27,10 +35,13 @@ export function TestComponent() {
   return (
     <div className="row-container">
       <Tooltip title="q='artist:Billie Eilish track:Bad Guy', type='track'">
-      <CheckboxGroup items={['albumes', 'artistas', 'canciones']}></CheckboxGroup>
-      <Button variant="outlined" color="success" onClick={queryBackend}>
-        Do an API query
-      </Button>
+        <CheckboxGroup
+          checkedItems={checkedItems}
+          onChange={setCheckedItems}
+        ></CheckboxGroup>
+        <Button variant="outlined" color="success" onClick={queryBackend}>
+          Do an API query
+        </Button>
       </Tooltip>
       {song && imageURI ? (
         <div className="column-container">

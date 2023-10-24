@@ -36,3 +36,24 @@
   width: 40px;
   height: 40px;
 }
+
+.sngs-containers {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.results-container {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 30px;
+  margin-top: 20px;
+  /* width: 50%; */
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}

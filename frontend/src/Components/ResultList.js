@@ -5,15 +5,14 @@ export function ResultList({ results, searchQuery }) {
   return (
     <div className="row-container ">
       {results
-        .filter((result) => result.song.startsWith(searchQuery))
+        .filter((result) => result.header.startsWith(searchQuery))
         .map((result) => {
           return (
             <SongCard
-              song={result.song}
-              artist={result.artist}
-              album={result.album}
+              header={result.header}
+              subHeader={result.subHeader}
+              body={result.body}
               imageURI={result.imageURI}
-              key={result.song}
             />
           );
         })}
