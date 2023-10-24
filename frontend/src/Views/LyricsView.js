@@ -16,27 +16,32 @@ export function LyricsView() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    fetchResults()
+  };
+
+  const fetchResults = () => {
     if (searchQuery !== "")
-      axios
-        .get(
-          `http://localhost:8080/elastic/search?query=${searchQuery}`
-        )
-        .then((response) => {
-          setResults(response.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+    axios
+      .get(
+        `http://localhost:8080/elastic/search?query=${searchQuery}&limit=${pageSize}&offset=${(currentPage-1) * pageSize}`
+      )
+      .then((response) => {
+        setResults(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   useEffect(() => {
     if (results) {
-      const indexOfLastItem = currentPage * pageSize;
-      const indexOfFirstItem = indexOfLastItem - pageSize;
-      const itemsToDisplay = results.slice(indexOfFirstItem, indexOfLastItem)
-      setCurrentItems(itemsToDisplay);
+      setCurrentItems(results);
     }
-  }, [currentPage, pageSize, results]);
+  }, [results]);
+
+  useEffect(() => {
+    fetchResults()
+  }, [currentPage, pageSize]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: '5%' }}>
@@ -84,7 +89,7 @@ export function LyricsView() {
           </div>
           <LyricsResultList results={currentItems} searchQuery={searchQuery} />
           <Pagination
-            count={4} // Total number of pages
+            count={10} // Total number of pages
             page={currentPage} // Current page
             onChange={(event, page) => setCurrentPage(page)}
             style={{ display: "flex", justifyContent: "center" }}
