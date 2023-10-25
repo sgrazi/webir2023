@@ -1,16 +1,12 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import "../Components/styles.css";
 import { Button, Typography } from "@mui/material";
-import Pagination from "@mui/material/Pagination";
 import MenuItem from "@mui/material/MenuItem";
-import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
-import PaginationItem from "@mui/material/PaginationItem";
-import { ResultList } from "../Components/ResultList";
 import Select from "@mui/material/Select";
 import CheckboxGroup from "../Components/checkbox_group";
 import { SearchField } from "../Components/SearchField";
+import { ResultView } from "../Views/ResultView";
 import axios from "axios";
 
 export function SearchView() {
@@ -28,21 +24,22 @@ export function SearchView() {
     end_year: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState(undefined);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  
   const handleChange = (e) => {
     const { name, value } = e;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handelSearchQueryChange = (e) => {
-    setSearchQuery(e.value);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetchResults()
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const fetchResults = async () => {
     const tiposParam = Object.entries(checkedItems)
       .filter(([key, value]) => value)
       .map(([key]) => `types=${key}`)
@@ -56,7 +53,7 @@ export function SearchView() {
 
     try {
       const response = await axios.get(
-        `http://localhost:8080/spotify/search?query=${query}&${tiposParam}`,
+        `http://localhost:8080/spotify/search?query=${query}&${tiposParam}&limit=${pageSize}&offset=${(currentPage-1) * pageSize}`,
         {
           params: {
             ...rest,
@@ -82,15 +79,20 @@ export function SearchView() {
 
         resultAux.push(...typeResults);
       }
-      setResults(resultAux);
+      
+      setResults(resultAux.filter((result) => result.header.startsWith(searchQuery)));
     } catch (error) {
       console.error("Error al cargar los datos:", error);
     }
-  };
+  }
+
+  useEffect(() => {
+    fetchResults()
+  }, [currentPage, pageSize]);
 
   return (
     <div className="sngs-containers" style={{ marginTop: "20px" }}>
-      {results.length == 0 ? (
+      {results == undefined ? (
         <div className="sngs-containers">
           <Typography variant="h4" color="white">
             Search
@@ -177,42 +179,18 @@ export function SearchView() {
           </form>
         </div>
       ) : (
-        <div className="results-container">
-          <div className="results-header">
-            <SearchField
-              field={searchQuery}
-              handleFieldChange={handelSearchQueryChange}
-              placeholder="Search"
-            />
-            <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <Select
-                size="small"
-                value={currentPage}
-                onChange={(e) => setCurrentPage(e.target.value)}
-                style={{
-                  background: "white",
-                }}
-              >
-                <MenuItem value={1}>1</MenuItem>
-              </Select>
-              <FormHelperText style={{ color: "white" }}>
-                Select page
-              </FormHelperText>
-            </FormControl>
-          </div>
-          <ResultList results={results} searchQuery={searchQuery} />
-          <Pagination
-            count={10}
-            page={currentPage}
-            onChange={(e) => setCurrentPage(e.target.value)}
-            style={{ display: "flex", justifyContent: "center" }}
-            renderItem={(item) => (
-              <PaginationItem {...item} style={{ color: "white" }} />
-            )}
-          />
-        </div>
+        <ResultView
+          searchQuery={searchQuery}
+          handleFieldChange={ (e) => setSearchQuery(e.value) }
+          currentPageSize={pageSize}
+          handlePageSizeChange={ (e) => setPageSize(e.target.value) }
+          currentPage={currentPage}
+          handlePageChange={(_, page) => setCurrentPage(page)}
+          results={results}
+          isFromElastic={false}
+        />
       )}
-    </div>
+      </div>
   );
 }
 

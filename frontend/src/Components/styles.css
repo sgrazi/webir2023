@@ -15,7 +15,6 @@
 
 .lyric-row-container {
   display: flex;
-  align-items: flex-start;
   gap: 15px;
 }
 
@@ -49,11 +48,11 @@
   grid-template-rows: auto 1fr;
   gap: 30px;
   margin-top: 20px;
-  /* width: 50%; */
+  width: 80%;
 }
 
 .results-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: baseline;
 }

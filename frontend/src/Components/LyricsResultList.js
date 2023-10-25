@@ -35,18 +35,16 @@ export function LyricsResultList({ results }) {
           );
         })}
         </div>
-        {showLyric && (
-          <Card
+        <Card
             sx={{
               marginLeft: 1,
               display: "flex",
-              width: "50%",
+              flex: 1,
             }}>
             <CardContent>
               <Typography variant="body1">{lyrics}</Typography>
             </CardContent>
           </Card>
-        )}
     </div>
   );
 }
