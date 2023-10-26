@@ -1,11 +1,13 @@
 import React from "react";
 import { useState } from "react";
-import { Button, Box, TextField } from "@mui/material";
+import { Button, Box, TextField, Pagination, PaginationItem, MenuItem, FormHelperText, FormControl, Select } from "@mui/material";
 import axios from "axios";
+import { LyricsResultList } from "../Components/LyricsResultList";
 
 export function LyricsView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -25,7 +27,7 @@ export function LyricsView() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", height: "100vh", marginTop: '5%' }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: '5%' }}>
       <Box component="form" onSubmit={handleSubmit} style={{ width: "50%", textAlign: "center" }}>
         <TextField
           focused
@@ -43,7 +45,37 @@ export function LyricsView() {
           Buscar
         </Button>
       </Box>
-      {results && <p>RESULT LIST HERE</p>}
+      {results && 
+        <div className="results-container">
+          <div className="results-header">
+          <FormControl sx={{ m: 1, minWidth: 120 }}>
+              <Select
+                size="small"
+                value={currentPage}
+                onChange={(e) => setCurrentPage(e.target.value)}
+                style={{
+                  background: "white",
+                }}
+              >
+                <MenuItem value={1}>1</MenuItem>
+              </Select>
+              <FormHelperText style={{ color: "white" }}>
+                Select page
+              </FormHelperText>
+            </FormControl>
+          </div>
+        <LyricsResultList results={results} searchQuery={searchQuery} />
+        <Pagination
+            count={10}
+            page={currentPage}
+            onChange={(e) => setCurrentPage(e.target.value)}
+            style={{ display: "flex", justifyContent: "center" }}
+            renderItem={(item) => (
+              <PaginationItem {...item} style={{ color: "white" }} />
+            )}
+          />
+        </div>
+      }
     </div>
   );
 }

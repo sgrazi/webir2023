@@ -7,10 +7,22 @@
 }
 
 .row-container {
-  margin-top: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 15px;
+}
+
+.lyric-row-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.lyric-column {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
 }
 
 .column-container {
