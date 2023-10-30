@@ -10,43 +10,47 @@ export function LyricsResultList({ results }) {
   const [lyrics, setLyric] = useState("");
 
   const toggleLyric = (lyrics) => {
-    setLyric(lyrics)
+    setLyric(lyrics);
     setShowLyric(true);
   };
 
   useEffect(() => {
     setShowLyric(false);
-    setLyric("")
-  }, [results])
+    setLyric("");
+  }, [results]);
 
   return (
     <div className="lyric-row-container ">
       <div className="lyric-column">
-      {results
-        .map((result) => {
+        {results.map((result) => {
           return (
             <LyricCard
               key={result._id}
               song={result._source.title}
               artist={result._source.artist}
               lyrics={result._source.lyrics}
+              views={result._source.views}
+              year={result._source.year}
               onClick={toggleLyric}
             />
           );
         })}
-        </div>
-        {showLyric && (
-          <Card
-            sx={{
-              marginLeft: 1,
-              display: "flex",
-              width: "50%",
-            }}>
-            <CardContent>
-              <Typography variant="body1">{lyrics}</Typography>
-            </CardContent>
-          </Card>
-        )}
+      </div>
+      {showLyric && (
+        <Card
+          sx={{
+            marginLeft: 1,
+            display: "flex",
+            width: "50%",
+          }}
+        >
+          <CardContent>
+            <Typography style={{ whiteSpace: "pre-line" }} variant="body1">
+              {lyrics}
+            </Typography>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

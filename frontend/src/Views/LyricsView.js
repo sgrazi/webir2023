@@ -1,23 +1,38 @@
 import React from "react";
 import { useState } from "react";
-import { Button, Box, TextField, Pagination, PaginationItem, MenuItem, FormHelperText, FormControl, Select } from "@mui/material";
+import {
+  Button,
+  Box,
+  TextField,
+  Pagination,
+  PaginationItem,
+  MenuItem,
+  Select,
+  Typography,
+} from "@mui/material";
 import axios from "axios";
 import { LyricsResultList } from "../Components/LyricsResultList";
 
 export function LyricsView() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [lyricQuery, setLyricQuery] = useState("");
+  const [artistQuery, setArtistQuery] = useState("");
+  const [orderBy, setOrderBy] = useState("Relevancia");
   const [results, setResults] = useState(undefined);
   const [currentPage, setCurrentPage] = useState(1);
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    let query = "";
+    if (lyricQuery !== "") query = `lyric=${lyricQuery}`;
+    if (artistQuery !== "")
+      query === ""
+        ? (query = `artist=${artistQuery}`)
+        : (query += `artist=${artistQuery}`);
 
-    if (searchQuery !== "")
-    // Change the URL and set the results correctly
+    if (query !== "")
+      // Change the URL and set the results correctly
       axios
-        .get(
-          `http://localhost:8080/elastic/search?query=${searchQuery}`
-        )
+        .get(`http://localhost:8080/elastic/search?${query}&orderBy=${orderBy}`)
         .then((response) => {
           setResults(response.data);
         })
@@ -27,45 +42,71 @@ export function LyricsView() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: '5%' }}>
-      <Box component="form" onSubmit={handleSubmit} style={{ width: "50%", textAlign: "center" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        marginTop: "5%",
+      }}
+    >
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "50%",
+        }}
+      >
         <TextField
           focused
           label="Buscar letras"
           variant="outlined"
-          value={searchQuery}
+          value={lyricQuery}
           color="success"
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ width: '70%' }}
-          InputProps={{
-            style: { color: 'lightgrey' }
-          }}
+          onChange={(e) => setLyricQuery(e.target.value)}
+          style={{ width: "100%", marginBottom: "10px" }}
         />
-        <Button type="submit" variant="contained" color="success" style={{ height: '100%', paddingLeft: '30px', paddingRight: '30px', marginLeft: '15px' }}>
+        <TextField
+          label="Buscar letras de un artista"
+          variant="outlined"
+          value={artistQuery}
+          color="success"
+          onChange={(e) => setArtistQuery(e.target.value)}
+          style={{ width: "100%", marginBottom: "10px" }}
+        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "10px",
+            width: "100%",
+          }}
+        >
+          <Typography style={{ color: "#1db954" }} variant="body1">
+            Ordenar Por
+          </Typography>
+          <Select
+            value={orderBy}
+            onChange={(e) => setOrderBy(e.target.value)}
+            style={{ width: "100%" }}
+            color="success"
+          >
+            <MenuItem value="Relevancia">Relevancia</MenuItem>
+            <MenuItem value="Recientes">Recientes</MenuItem>
+            <MenuItem value="Popularidad">Popularidad</MenuItem>
+          </Select>
+        </div>
+        <Button type="submit" variant="contained" color="success">
           Buscar
         </Button>
       </Box>
-      {results && 
+      {results && (
         <div className="results-container">
-          <div className="results-header">
-          <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <Select
-                size="small"
-                value={currentPage}
-                onChange={(e) => setCurrentPage(e.target.value)}
-                style={{
-                  background: "white",
-                }}
-              >
-                <MenuItem value={1}>1</MenuItem>
-              </Select>
-              <FormHelperText style={{ color: "white" }}>
-                Select page
-              </FormHelperText>
-            </FormControl>
-          </div>
-        <LyricsResultList results={results} searchQuery={searchQuery} />
-        <Pagination
+          <LyricsResultList results={results} />
+          <Pagination
             count={10}
             page={currentPage}
             onChange={(e) => setCurrentPage(e.target.value)}
@@ -75,7 +116,7 @@ export function LyricsView() {
             )}
           />
         </div>
-      }
+      )}
     </div>
   );
 }
