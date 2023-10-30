@@ -42,7 +42,7 @@ export function LyricsView() {
         <Box component="form" onSubmit={handleSubmit} style={{ width: "50%", textAlign: "center" }}>
           <TextField
             focused
-            label="Buscar letras}"
+            label="Buscar letras"
             variant="outlined"
             value={searchQuery}
             color="success"
