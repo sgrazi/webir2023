@@ -8,7 +8,7 @@ load_dotenv()
 elastic_password = os.getenv("ELASTIC_PASSWORD")
 elastic_user = os.getenv("ELASTIC_USER")
 
-df = pd.read_csv("./short_song_lyrics.csv")
+df = pd.read_csv("./scripts/short_song_lyrics.csv")
 es = Elasticsearch(
     hosts=[{"host": "localhost", "port": 9200, "scheme": "http"}],
     basic_auth=(elastic_user, elastic_password),
@@ -22,6 +22,8 @@ for index, row in islice(df.iterrows(), 0, rows_to_process):
         "title": row["title"],
         "artist": row["artist"],
         "lyrics": row["lyrics"],
+        "year": int(row["year"]),
+        "views": int(row["views"])
     }
     index_name = "songs"
     response = es.index(index=index_name, id=data_to_index["id"], body=data_to_index)
