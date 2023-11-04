@@ -7,11 +7,8 @@ import { LyricsResultList } from "../Components/LyricsResultList";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { SearchField } from "../Components/SearchField";
 
 export const ResultView = ({
-    searchQuery,
-    handleFieldChange,
     currentPageSize,
     handlePageSizeChange,
     currentPage,
@@ -25,11 +22,6 @@ export const ResultView = ({
     return (
         <div className="results-container">
             <div className="results-header">
-                <SearchField
-                    field={searchQuery}
-                    handleFieldChange={handleFieldChange}
-                    placeholder="Search"
-                />
                 <FormControl sx={{ m: 1, minWidth: 120 }}>
                     <Select
                         size="small"
