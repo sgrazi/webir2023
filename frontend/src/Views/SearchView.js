@@ -1,19 +1,13 @@
-import React from "react";
-import { useState } from "react";
-import "./styles.css";
-import { Typography } from "@mui/material";
-import Pagination from "@mui/material/Pagination";
-import MenuItem from "@mui/material/MenuItem";
-import FormHelperText from "@mui/material/FormHelperText";
-import FormControl from "@mui/material/FormControl";
-import PaginationItem from "@mui/material/PaginationItem";
-import { ResultList } from "../Components/ResultList";
-import TextField from "@mui/material/TextField";
-import Select from "@mui/material/Select";
+
+import React, { useState, useEffect } from 'react';
+import "../Components/styles.css";
+import { Typography, TextField } from "@mui/material";
+import { ResultView } from "../Views/ResultView";
 
 export function SearchView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const results = [
     // {
@@ -29,6 +23,47 @@ export function SearchView() {
     //   imageURI: "https://unavatar.io/kikobeats",
     // },
   ];
+
+  const fetchResults = async () => {
+    
+    // try {
+    //   const response = await axios.get(
+    //     `http://localhost:8080/spotify/search?query=${query}&${tiposParam}&limit=${pageSize}&offset=${(currentPage-1) * pageSize}`,
+    //     {
+    //       params: {
+    //         ...rest,
+    //       },
+    //     }
+    //   );
+    //   let resultAux = [];
+    //   for (const type of Object.keys(checkedItems).filter(
+    //     (item) => checkedItems[item]
+    //   )) {
+    //     const { data } = response;
+    //     const { items } = data[`${type}s`];
+
+    //     let typeResults;
+
+    //     if (type === "album") {
+    //       typeResults = items.map(processAlbum);
+    //     } else if (type === "track") {
+    //       typeResults = items.map(processTrack);
+    //     } else if (type === "artist") {
+    //       typeResults = items.map(processArtist);
+    //     }
+
+    //     resultAux.push(...typeResults);
+    //   }
+      
+    //   setResults(resultAux.filter((result) => result.header.startsWith(searchQuery)));
+    // } catch (error) {
+    //   console.error("Error al cargar los datos:", error);
+    // }
+  }
+
+  useEffect(() => {
+    fetchResults()
+  }, [currentPage, pageSize]);
 
   const handleSearchQueryChange = (value) => {
     setSearchQuery(value);
@@ -59,34 +94,39 @@ export function SearchView() {
                 style: { color: "black" },
               }}
             />
-            <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <Select
-                size="small"
-                value={currentPage}
-                onChange={(e) => setCurrentPage(e.target.value)}
-                style={{
-                  background: "white",
-                }}
-              >
-                <MenuItem value={1}>1</MenuItem>
-              </Select>
-              <FormHelperText style={{ color: "white" }}>
-                Select page
-              </FormHelperText>
-            </FormControl>
           </div>
-          <ResultList results={results} searchQuery={searchQuery} />
-          <Pagination
-            count={10}
-            page={currentPage}
-            onChange={(e) => setCurrentPage(e.target.value)}
-            style={{ display: "flex", justifyContent: "center" }}
-            renderItem={(item) => (
-              <PaginationItem {...item} style={{ color: "white" }} />
-            )}
+          <ResultView
+          currentPageSize={pageSize}
+          handlePageSizeChange={ (e) => setPageSize(e.target.value) }
+          currentPage={currentPage}
+          handlePageChange={(_, page) => setCurrentPage(page)}
+          results={results}
+          isFromElastic={false}
           />
         </div>
       )}
     </div>
   );
 }
+
+const processAlbum = (item) => ({
+  header: item.name,
+  subHeader: item.artists[0].name,
+  imageURI: item.images[0].url,
+});
+
+const processTrack = (item) => ({
+  header: item.name,
+  subHeader: item.artists[0].name,
+  body: item.album.name,
+  imageURI: item.album.images[0].url,
+});
+
+const processArtist = (item) => {
+  const imageURI = item.images.length > 0 ? item.images[0].url : "";
+  return {
+    header: item.name,
+    subHeader: item.type,
+    imageURI,
+  };
+};

@@ -6,16 +6,13 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 
 export function LyricsResultList({ results }) {
-  const [showLyric, setShowLyric] = useState(false);
   const [lyrics, setLyric] = useState("");
 
   const toggleLyric = (lyrics) => {
     setLyric(lyrics);
-    setShowLyric(true);
   };
 
   useEffect(() => {
-    setShowLyric(false);
     setLyric("");
   }, [results]);
 
@@ -35,22 +32,17 @@ export function LyricsResultList({ results }) {
             />
           );
         })}
-      </div>
-      {showLyric && (
+        </div>
         <Card
-          sx={{
-            marginLeft: 1,
-            display: "flex",
-            width: "50%",
-          }}
-        >
-          <CardContent>
-            <Typography style={{ whiteSpace: "pre-line" }} variant="body1">
-              {lyrics}
-            </Typography>
-          </CardContent>
-        </Card>
-      )}
+            sx={{
+              marginLeft: 1,
+              display: "flex",
+              flex: 1,
+            }}>
+            <CardContent>
+              <Typography variant="body1">{lyrics}</Typography>
+            </CardContent>
+          </Card>
     </div>
   );
 }

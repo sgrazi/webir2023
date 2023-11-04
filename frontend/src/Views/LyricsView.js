@@ -1,27 +1,27 @@
-import React from "react";
-import { useState } from "react";
-import {
-  Button,
-  Box,
-  TextField,
-  Pagination,
-  PaginationItem,
-  MenuItem,
-  Select,
-  Typography,
-} from "@mui/material";
+import React, { useState, useEffect } from 'react';
+import { Button, Box, TextField, Pagination, PaginationItem, MenuItem, Typography, FormHelperText, FormControl, Select } from "@mui/material";
 import axios from "axios";
-import { LyricsResultList } from "../Components/LyricsResultList";
+import { ResultView } from "../Views/ResultView";
 
 export function LyricsView() {
+  const maxAmmount = 10;
+
+  const [results, setResults] = useState(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [lyricQuery, setLyricQuery] = useState("");
   const [artistQuery, setArtistQuery] = useState("");
   const [orderBy, setOrderBy] = useState("Relevancia");
-  const [results, setResults] = useState(undefined);
-  const [currentPage, setCurrentPage] = useState(1);
+
+
+  const rangeValues = Array.from({ length: maxAmmount }, (_, i) => i + 1);
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    fetchResults()
+  };
+
+  const fetchResults = () => {
     let query = "";
     if (lyricQuery !== "") query = `lyric=${lyricQuery}`;
     if (artistQuery !== "")
@@ -32,7 +32,7 @@ export function LyricsView() {
     if (query !== "")
       // Change the URL and set the results correctly
       axios
-        .get(`http://localhost:8080/elastic/search?${query}&orderBy=${orderBy}`)
+        .get(`http://localhost:8080/elastic/search?${query}&orderBy=${orderBy}&limit=${pageSize}&offset=${(currentPage-1) * pageSize}`)
         .then((response) => {
           setResults(response.data);
         })
@@ -40,6 +40,10 @@ export function LyricsView() {
           console.error(error);
         });
   };
+
+  useEffect(() => {
+    fetchResults()
+  }, [currentPage, pageSize]);
 
   return (
     <div
@@ -105,16 +109,14 @@ export function LyricsView() {
       </Box>
       {results && (
         <div className="results-container">
-          <LyricsResultList results={results} />
-          <Pagination
-            count={10}
-            page={currentPage}
-            onChange={(e) => setCurrentPage(e.target.value)}
-            style={{ display: "flex", justifyContent: "center" }}
-            renderItem={(item) => (
-              <PaginationItem {...item} style={{ color: "white" }} />
-            )}
-          />
+          <ResultView
+          currentPageSize={pageSize}
+          handlePageSizeChange={ (e) => setPageSize(e.target.value) }
+          currentPage={currentPage}
+          handlePageChange={(_, page) => setCurrentPage(page)}
+          results={results}
+          isFromElastic={true}
+        />
         </div>
       )}
     </div>

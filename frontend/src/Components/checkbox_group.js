@@ -1,31 +1,28 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormHelperText from '@mui/material/FormHelperText';
-import Checkbox from '@mui/material/Checkbox';
-import Grid from '@mui/material/Grid';
+import * as React from "react";
+import Box from "@mui/material/Box";
+import FormControl from "@mui/material/FormControl";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormHelperText from "@mui/material/FormHelperText";
+import Checkbox from "@mui/material/Checkbox";
+import Grid from "@mui/material/Grid";
 
-export default function CheckboxGroup({items}) {
-  const initialState = {};
-  items.forEach((item) => {
-    initialState[item] = false;
-  });
-
-  const [state, setState] = React.useState(initialState);
+export default function CheckboxGroup({ checkedItems, onChange }) {
+  const [state, setState] = React.useState(checkedItems);
 
   const handleChange = (event) => {
-    setState({
+    const newState = {
       ...state,
       [event.target.name]: event.target.checked,
-    });
+    };
+    setState(newState);
+    onChange(newState);
   };
 
   const error = !Object.values(state).some((v) => v);
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <FormControl
         required
         error={error}
@@ -35,19 +32,25 @@ export default function CheckboxGroup({items}) {
       >
         <FormGroup>
           <Grid container spacing={2}>
-            {items.map((item, _) => (
-              <Grid item xs={4}>
+            {Object.entries(checkedItems).map(([key, value]) => (
+              <Grid item xs={4} key={key}>
                 <FormControlLabel
                   control={
-                    <Checkbox checked={state[item]} onChange={handleChange} name={item} />
+                    <Checkbox
+                      checked={state[key]}
+                      onChange={handleChange}
+                      name={key}
+                    />
                   }
-                  label={ item.charAt(0).toUpperCase() + item.slice(1) }
+                  label={key.charAt(0).toUpperCase() + key.slice(1)}
                 />
               </Grid>
             ))}
           </Grid>
         </FormGroup>
-        <FormHelperText>{error ? "Debe seleccionar al menos una opción" : ""}</FormHelperText>
+        <FormHelperText>
+          {error ? "Debe seleccionar al menos una opción" : ""}
+        </FormHelperText>
       </FormControl>
     </Box>
   );

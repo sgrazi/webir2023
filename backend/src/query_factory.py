@@ -1,5 +1,7 @@
-def make_elastic_lyric_query(query_string: str, orderBy: str):
+def make_elastic_lyric_query(query_string: str, orderBy: str, limit: int, offset: int):
     query = {"query": {"match": {"lyrics": query_string}}}
+    query["from"] = offset
+    query["size"] = limit
     if orderBy == "Popularidad":
         query["sort"] = [{"views": {"order": "desc"}}]
     elif orderBy == "Recientes":
@@ -7,8 +9,10 @@ def make_elastic_lyric_query(query_string: str, orderBy: str):
     return query
 
 
-def make_elastic_artist_query(query_string: str, orderBy: str):
+def make_elastic_artist_query(query_string: str, orderBy: str, limit: int, offset: int):
     query = {"query": {"match": {"artist": query_string}}}
+    query["from"] = offset
+    query["size"] = limit
     if orderBy == "Popularidad":
         query["sort"] = [{"views": {"order": "desc"}}]
     elif orderBy == "Recientes":
@@ -16,7 +20,7 @@ def make_elastic_artist_query(query_string: str, orderBy: str):
     return query
 
 
-def make_elastic_full_query(lyric: str, artist: str, orderBy: str):
+def make_elastic_full_query(lyric: str, artist: str, orderBy: str, limit: int, offset: int):
     query = {
         "query": {
             "bool": {
@@ -27,7 +31,8 @@ def make_elastic_full_query(lyric: str, artist: str, orderBy: str):
             }
         }
     }
-
+    query["from"] = offset
+    query["size"] = limit
     if orderBy == "Popularidad":
         query["sort"] = [{"views": {"order": "desc"}}]
     elif orderBy == "Recientes":
