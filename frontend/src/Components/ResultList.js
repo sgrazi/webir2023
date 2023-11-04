@@ -8,10 +8,11 @@ export function ResultList({ results }) {
         .map((result) => {
           return (
             <SongCard
-              header={result.header}
-              subHeader={result.subHeader}
-              body={result.body}
+              song={result.song}
+              artist={result.artist}
+              album={result.album}
               imageURI={result.imageURI}
+              key={result.song}
             />
           );
         })}
