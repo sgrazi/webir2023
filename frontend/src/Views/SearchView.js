@@ -27,6 +27,7 @@ export function SearchView() {
     start_year: "",
     end_year: "",
   });
+  const [orderBy, setOrderBy] = useState("Relevancia");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [results, setResults] = useState([]);
@@ -56,7 +57,7 @@ export function SearchView() {
 
     try {
       const response = await axios.get(
-        `http://localhost:8080/spotify/search?query=${query}&${tiposParam}`,
+        `http://localhost:8000/spotify/search?query=${query}&${tiposParam}`,
         {
           params: {
             ...rest,
@@ -64,6 +65,18 @@ export function SearchView() {
         }
       );
       let resultAux = [];
+      // console.log(response)
+
+      // const orderedData = data.sort((a, b) => b[popularity] - a[popularity]);
+      // const orderedData = data.sort((a, b) => {
+      //     const dateA = new Date(a[release_date]);
+      //     const dateB = new Date(b[release_date]);
+      //     return dateA - dateB;
+      //   });
+      // const orderedData = data.sort((a, b) => {
+      //     return a[name].localeCompare(b[name]);
+      //   });
+
       for (const type of Object.keys(checkedItems).filter(
         (item) => checkedItems[item]
       )) {
@@ -71,6 +84,26 @@ export function SearchView() {
         const { items } = data[`${type}s`];
 
         let typeResults;
+
+        if (type === "album") {
+          // Alfabetico, reciente
+          if (orderBy === 'Alfabetico')
+            items.sort((a, b) => { return a['name'].localeCompare(b['name']);})
+
+          if (orderBy === 'Reciente')
+            items.sort((a, b) => {
+              const dateA = new Date(a['release_date']);
+              const dateB = new Date(b['release_date']);
+              return dateA - dateB;
+            })
+        } else {
+          // Alfabetico, Relevancia
+          if (orderBy === 'Alfabetico')
+            items.sort((a, b) => { return a['name'].localeCompare(b['name']);})
+
+          if (orderBy === 'Relevancia')
+            items.sort((a, b) => b['popularity'] - a['popularity']);
+        }
 
         if (type === "album") {
           typeResults = items.map(processAlbum);
@@ -90,7 +123,7 @@ export function SearchView() {
 
   return (
     <div className="sngs-containers" style={{ marginTop: "20px" }}>
-      {results.length == 0 ? (
+      {results.length === 0 ? (
         <div className="sngs-containers">
           <Typography variant="h4" color="white">
             Search
@@ -162,6 +195,28 @@ export function SearchView() {
                     <MenuItem value={""}></MenuItem>
                   </Select>
                 </FormControl>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "10px",
+                  width: "100%",
+                }}
+              >
+                <Typography style={{ color: "#1db954" }} variant="body1">
+                  Ordenar Por
+                </Typography>
+                <Select
+                  value={orderBy}
+                  onChange={(e) => setOrderBy(e.target.value)}
+                  style={{ width: "100%" }}
+                  color="success"
+                >
+                  <MenuItem value="Relevancia">Relevancia</MenuItem>
+                  <MenuItem value="Recientes">Recientes</MenuItem>
+                  <MenuItem value="Alfabetico">Alfabetico</MenuItem>
+                </Select>
               </div>
               <Button
                 type="submit"
