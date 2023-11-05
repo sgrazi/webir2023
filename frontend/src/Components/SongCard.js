@@ -5,13 +5,13 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import CardActionArea from "@mui/material/CardActionArea";
 
-export function SongCard({ song, artist, album, imageURI }) {
+export function SongCard({ header, subHeader, body = "", imageURI }) {
   return (
     <Card
       sx={{
         display: "flex",
-        height: "60px",
-        width: "400px",
+        height: "80px",
+        width: "800px",
         color: "black",
       }}
     >
@@ -37,19 +37,23 @@ export function SongCard({ song, artist, album, imageURI }) {
             maxHeight: "100%",
           }}
           image={imageURI}
-          alt="Live from space album cover"
         />
-        <CardContent sx={{ flex: "1 0 auto" }}>
+        <CardContent
+          style={{ padding: 0 }}
+          sx={{ flex: "1 0 auto", width: "fit-content" }}
+        >
           <Typography component="div" variant="body1" color="white">
-            {song}
+            {header}
           </Typography>
           <Typography variant="body2" color="#B3B3B3" component="div">
-            {artist}
+            {subHeader}
           </Typography>
         </CardContent>
-        <Typography variant="body2" color="#B3B3B3" component="div">
-          {album}
-        </Typography>
+        {body != "" && (
+          <Typography variant="body2" color="#B3B3B3" component="div">
+            {body}
+          </Typography>
+        )}
       </CardActionArea>
     </Card>
   );
