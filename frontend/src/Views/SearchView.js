@@ -18,6 +18,7 @@ export function SearchView() {
     query: "",
     genre: "",
     song: "",
+    album: "",
     artist: "",
     start_year: "",
     end_year: "",
@@ -59,17 +60,6 @@ export function SearchView() {
         }
       );
       let resultAux = [];
-      // console.log(response)
-
-      // const orderedData = data.sort((a, b) => b[popularity] - a[popularity]);
-      // const orderedData = data.sort((a, b) => {
-      //     const dateA = new Date(a[release_date]);
-      //     const dateB = new Date(b[release_date]);
-      //     return dateA - dateB;
-      //   });
-      // const orderedData = data.sort((a, b) => {
-      //     return a[name].localeCompare(b[name]);
-      //   });
 
       for (const type of Object.keys(checkedItems).filter(
         (item) => checkedItems[item]
@@ -132,6 +122,123 @@ export function SearchView() {
     setSearchQuery(value);
   };
 
+  const form = (
+    <form onSubmit={handleSubmit}>
+      <div className="sngs-containers">
+        <CheckboxGroup checkedItems={checkedItems} onChange={setCheckedItems} />
+        <SearchField
+          isDisabled={Object.values(checkedItems).every((item) => !item)}
+          field={formData.query}
+          handleFieldChange={handleChange}
+          name="query"
+          placeholder="Search"
+        />
+        <SearchField
+          isDisabled={
+            !(checkedItems.track || checkedItems.artist) || checkedItems.album
+          }
+          // desabilitado si no esta checkeado ni track ni artist, o, si esta checkeado album
+          field={formData.genre}
+          handleFieldChange={handleChange}
+          name="genre"
+          placeholder="Filter by genre"
+        />
+        <SearchField
+          isDisabled={!checkedItems.track}
+          // desabilitado si no esta checkeado track
+          field={formData.song}
+          handleFieldChange={handleChange}
+          name="song"
+          placeholder="Filter by track"
+        />
+        <SearchField
+          isDisabled={
+            !(checkedItems.track || checkedItems.album) || checkedItems.artist
+          }
+          // desabilitado si no esta checkeado ni track ni album, o, si esta checkeado artils
+          field={formData.album}
+          handleFieldChange={handleChange}
+          name="album"
+          placeholder="Filter by album"
+        />
+        <SearchField
+          isDisabled={false}
+          // siempre habilitado
+          field={formData.artist}
+          handleFieldChange={handleChange}
+          name="artist"
+          placeholder="Filter by artist"
+        />
+        <div className="column-container">
+          <Typography variant="body" color="white">
+            From
+          </Typography>
+          <FormControl sx={{ m: 1, minWidth: 120 }}>
+            <Select
+              size="small"
+              value={formData.start_year}
+              label="Year"
+              onChange={(e) => handleChange(e)}
+              style={{
+                background: "white",
+              }}
+            >
+              <MenuItem value={""}></MenuItem>
+            </Select>
+          </FormControl>
+          <Typography variant="body" color="white">
+            To
+          </Typography>
+          <FormControl sx={{ m: 1, minWidth: 120 }}>
+            <Select
+              size="small"
+              value={formData.end_year}
+              label="Year"
+              onChange={(e) => handleChange(e)}
+              style={{
+                background: "white",
+              }}
+            >
+              <MenuItem value={""}></MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "10px",
+            width: "100%",
+          }}
+        >
+          <Typography style={{ color: "#1db954" }} variant="body1">
+            Ordenar Por
+          </Typography>
+          <Select
+            value={orderBy}
+            onChange={(e) => setOrderBy(e.target.value)}
+            style={{ width: "100%" }}
+            color="success"
+          >
+            <MenuItem value="Relevancia">Relevancia</MenuItem>
+            <MenuItem value="Recientes">Recientes</MenuItem>
+            <MenuItem value="Alfabetico">Alfabetico</MenuItem>
+          </Select>
+        </div>
+        <Button
+          type="submit"
+          disabled={Object.values(checkedItems).every((item) => !item)}
+          variant="contained"
+          color="success"
+          size="large"
+          style={{ marginTop: "10px" }}
+        >
+          Search
+        </Button>
+      </div>
+    </form>
+  );
+
   return (
     <div className="sngs-containers" style={{ marginTop: "20px" }}>
       {results.length === 0 ? (
@@ -139,136 +246,21 @@ export function SearchView() {
           <Typography variant="h4" color="white">
             Search
           </Typography>
-          <form onSubmit={handleSubmit}>
-            <div className="sngs-containers">
-              <CheckboxGroup
-                checkedItems={checkedItems}
-                onChange={setCheckedItems}
-              />
-              <SearchField
-                isDisabled={Object.values(checkedItems).every((item) => !item)}
-                field={formData.query}
-                handleFieldChange={handleChange}
-                name="query"
-                placeholder="Search"
-              />
-              <SearchField
-                isDisabled={false}
-                field={formData.genre}
-                handleFieldChange={handleChange}
-                name="genre"
-                placeholder="Search genre"
-              />
-              <SearchField
-                isDisabled={!checkedItems.track}
-                field={formData.song}
-                handleFieldChange={handleChange}
-                name="song"
-                placeholder="Search song"
-              />
-              <SearchField
-                isDisabled={!checkedItems.artist}
-                field={formData.artist}
-                handleFieldChange={handleChange}
-                name="artist"
-                placeholder="Search artist"
-              />
-              <div className="column-container">
-                <Typography variant="body" color="white">
-                  From
-                </Typography>
-                <FormControl sx={{ m: 1, minWidth: 120 }}>
-                  <Select
-                    size="small"
-                    value={formData.start_year}
-                    label="Year"
-                    onChange={(e) => handleChange(e)}
-                    style={{
-                      background: "white",
-                    }}
-                  >
-                    <MenuItem value={""}></MenuItem>
-                  </Select>
-                </FormControl>
-                <Typography variant="body" color="white">
-                  To
-                </Typography>
-                <FormControl sx={{ m: 1, minWidth: 120 }}>
-                  <Select
-                    size="small"
-                    value={formData.end_year}
-                    label="Year"
-                    onChange={(e) => handleChange(e)}
-                    style={{
-                      background: "white",
-                    }}
-                  >
-                    <MenuItem value={""}></MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "10px",
-                  width: "100%",
-                }}
-              >
-                <Typography style={{ color: "#1db954" }} variant="body1">
-                  Ordenar Por
-                </Typography>
-                <Select
-                  value={orderBy}
-                  onChange={(e) => setOrderBy(e.target.value)}
-                  style={{ width: "100%" }}
-                  color="success"
-                >
-                  <MenuItem value="Relevancia">Relevancia</MenuItem>
-                  <MenuItem value="Recientes">Recientes</MenuItem>
-                  <MenuItem value="Alfabetico">Alfabetico</MenuItem>
-                </Select>
-              </div>
-              <Button
-                type="submit"
-                disabled={Object.values(checkedItems).every((item) => !item)}
-                variant="contained"
-                color="success"
-                size="large"
-                style={{ marginTop: "10px" }}
-              >
-                Search
-              </Button>
-            </div>
-          </form>
+          {form}
         </div>
       ) : (
-        <div className="results-container">
-          <div className="results-header">
-            <TextField
-              variant="outlined"
-              placeholder="Search song"
-              value={searchQuery}
-              onChange={(e) => handleSearchQueryChange(e.target.value)}
-              size="small"
-              style={{
-                width: "fit-content",
-                background: "white",
-                borderRadius: "4px",
-              }}
-              InputProps={{
-                style: { color: "black" },
-              }}
+        <div>
+          <div className="sngs-containers">{form}</div>
+          <div className="results-container">
+            <ResultView
+              currentPageSize={pageSize}
+              handlePageSizeChange={(e) => setPageSize(e.target.value)}
+              currentPage={currentPage}
+              handlePageChange={(_, page) => setCurrentPage(page)}
+              results={results}
+              isFromElastic={false}
             />
           </div>
-          <ResultView
-            currentPageSize={pageSize}
-            handlePageSizeChange={(e) => setPageSize(e.target.value)}
-            currentPage={currentPage}
-            handlePageChange={(_, page) => setCurrentPage(page)}
-            results={results}
-            isFromElastic={false}
-          />
         </div>
       )}
     </div>
