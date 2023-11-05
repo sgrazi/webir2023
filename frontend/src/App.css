@@ -2,7 +2,6 @@
   display: grid;
   grid-template-rows: auto 1fr;
   height: 100vh;
-  background-color: #2e2e2c;
 }
 
 .heading {

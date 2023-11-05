@@ -1,17 +1,12 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../Components/styles.css";
-import { Button, Typography } from "@mui/material";
-import Pagination from "@mui/material/Pagination";
-import MenuItem from "@mui/material/MenuItem";
-import FormHelperText from "@mui/material/FormHelperText";
-import FormControl from "@mui/material/FormControl";
-import PaginationItem from "@mui/material/PaginationItem";
-import { ResultList } from "../Components/ResultList";
+import { Typography, TextField } from "@mui/material";
+import { ResultView } from "../Views/ResultView";
 import Select from "@mui/material/Select";
 import CheckboxGroup from "../Components/checkbox_group";
 import { SearchField } from "../Components/SearchField";
 import axios from "axios";
+import { Button, FormControl, MenuItem } from "@mui/material";
 
 export function SearchView() {
   const [checkedItems, setCheckedItems] = useState({
@@ -30,6 +25,7 @@ export function SearchView() {
   const [orderBy, setOrderBy] = useState("Relevancia");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [results, setResults] = useState([]);
 
   const handleChange = (e) => {
@@ -37,12 +33,8 @@ export function SearchView() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handelSearchQueryChange = (e) => {
-    setSearchQuery(e.value);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     const tiposParam = Object.entries(checkedItems)
       .filter(([key, value]) => value)
@@ -57,7 +49,7 @@ export function SearchView() {
 
     try {
       const response = await axios.get(
-        `http://localhost:8000/spotify/search?query=${query}&${tiposParam}`,
+        `http://localhost:8080/spotify/search?query=${query}&${tiposParam}`,
         {
           params: {
             ...rest,
@@ -87,22 +79,26 @@ export function SearchView() {
 
         if (type === "album") {
           // Alfabetico, reciente
-          if (orderBy === 'Alfabetico')
-            items.sort((a, b) => { return a['name'].localeCompare(b['name']);})
-
-          if (orderBy === 'Reciente')
+          if (orderBy === "Alfabetico")
             items.sort((a, b) => {
-              const dateA = new Date(a['release_date']);
-              const dateB = new Date(b['release_date']);
+              return a["name"].localeCompare(b["name"]);
+            });
+
+          if (orderBy === "Reciente")
+            items.sort((a, b) => {
+              const dateA = new Date(a["release_date"]);
+              const dateB = new Date(b["release_date"]);
               return dateA - dateB;
-            })
+            });
         } else {
           // Alfabetico, Relevancia
-          if (orderBy === 'Alfabetico')
-            items.sort((a, b) => { return a['name'].localeCompare(b['name']);})
+          if (orderBy === "Alfabetico")
+            items.sort((a, b) => {
+              return a["name"].localeCompare(b["name"]);
+            });
 
-          if (orderBy === 'Relevancia')
-            items.sort((a, b) => b['popularity'] - a['popularity']);
+          if (orderBy === "Relevancia")
+            items.sort((a, b) => b["popularity"] - a["popularity"]);
         }
 
         if (type === "album") {
@@ -121,6 +117,9 @@ export function SearchView() {
     }
   };
 
+  const handleSearchQueryChange = (value) => {
+    setSearchQuery(value);
+  };
   return (
     <div className="sngs-containers" style={{ marginTop: "20px" }}>
       {results.length === 0 ? (
@@ -234,36 +233,29 @@ export function SearchView() {
       ) : (
         <div className="results-container">
           <div className="results-header">
-            <SearchField
-              field={searchQuery}
-              handleFieldChange={handelSearchQueryChange}
-              placeholder="Search"
+            <TextField
+              variant="outlined"
+              placeholder="Search song"
+              value={searchQuery}
+              onChange={(e) => handleSearchQueryChange(e.target.value)}
+              size="small"
+              style={{
+                width: "fit-content",
+                background: "white",
+                borderRadius: "4px",
+              }}
+              InputProps={{
+                style: { color: "black" },
+              }}
             />
-            <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <Select
-                size="small"
-                value={currentPage}
-                onChange={(e) => setCurrentPage(e.target.value)}
-                style={{
-                  background: "white",
-                }}
-              >
-                <MenuItem value={1}>1</MenuItem>
-              </Select>
-              <FormHelperText style={{ color: "white" }}>
-                Select page
-              </FormHelperText>
-            </FormControl>
           </div>
-          <ResultList results={results} searchQuery={searchQuery} />
-          <Pagination
-            count={10}
-            page={currentPage}
-            onChange={(e) => setCurrentPage(e.target.value)}
-            style={{ display: "flex", justifyContent: "center" }}
-            renderItem={(item) => (
-              <PaginationItem {...item} style={{ color: "white" }} />
-            )}
+          <ResultView
+            currentPageSize={pageSize}
+            handlePageSizeChange={(e) => setPageSize(e.target.value)}
+            currentPage={currentPage}
+            handlePageChange={(_, page) => setCurrentPage(page)}
+            results={results}
+            isFromElastic={false}
           />
         </div>
       )}

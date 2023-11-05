@@ -1,18 +1,18 @@
 import React from "react";
 import { SongCard } from "./SongCard";
 
-export function ResultList({ results, searchQuery }) {
+export function ResultList({ results }) {
   return (
     <div className="row-container ">
       {results
-        .filter((result) => result.header.startsWith(searchQuery))
         .map((result) => {
           return (
             <SongCard
-              header={result.header}
-              subHeader={result.subHeader}
-              body={result.body}
+              song={result.song}
+              artist={result.artist}
+              album={result.album}
               imageURI={result.imageURI}
+              key={result.song}
             />
           );
         })}
