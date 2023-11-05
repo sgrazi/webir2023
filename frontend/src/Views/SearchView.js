@@ -33,9 +33,7 @@ export function SearchView() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
+  const fetchResults = async () => {
     const tiposParam = Object.entries(checkedItems)
       .filter(([key, value]) => value)
       .map(([key]) => `types=${key}`)
@@ -49,7 +47,8 @@ export function SearchView() {
 
     try {
       const response = await axios.get(
-        `http://localhost:8080/spotify/search?query=${query}&${tiposParam}`,
+        `http://localhost:8080/spotify/search?query=${query}&${tiposParam}&limit=${pageSize}&offset=${(currentPage-1) * pageSize}`,
+
         {
           params: {
             ...rest,
@@ -117,9 +116,19 @@ export function SearchView() {
     }
   };
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    fetchResults()
+  };
+
+  useEffect(() => {
+    fetchResults()
+  }, [currentPage, pageSize]);
+
   const handleSearchQueryChange = (value) => {
     setSearchQuery(value);
   };
+  
   return (
     <div className="sngs-containers" style={{ marginTop: "20px" }}>
       {results.length === 0 ? (
