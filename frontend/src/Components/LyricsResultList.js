@@ -7,13 +7,21 @@ import Typography from "@mui/material/Typography";
 
 export function LyricsResultList({ results }) {
   const [lyrics, setLyric] = useState("");
+  const [prevKey, setPrevKey] = useState(undefined);
 
-  const toggleLyric = (lyrics) => {
-    setLyric(lyrics);
+  const toggleLyric = (key, newLyrics) => {
+    if (key === prevKey) {
+      setPrevKey(undefined);
+      setLyric("");
+    } else {
+      setLyric(newLyrics);
+      setPrevKey(key);
+    }
   };
 
   useEffect(() => {
     setLyric("");
+    setPrevKey(undefined);
   }, [results]);
 
   return (
@@ -23,6 +31,7 @@ export function LyricsResultList({ results }) {
           return (
             <LyricCard
               key={result._id}
+              id={result._id}
               song={result._source.title}
               artist={result._source.artist}
               lyrics={result._source.lyrics}
@@ -32,17 +41,24 @@ export function LyricsResultList({ results }) {
             />
           );
         })}
-        </div>
+      </div>
+      {prevKey ? (
         <Card
-            sx={{
-              marginLeft: 1,
-              display: "flex",
-              flex: 1,
-            }}>
-            <CardContent>
-              <Typography variant="body1">{lyrics}</Typography>
-            </CardContent>
-          </Card>
+          sx={{
+            marginLeft: 1,
+            display: "flex",
+            flex: 1,
+          }}
+        >
+          <CardContent>
+            <Typography variant="body1" style={{ whiteSpace: "pre-line" }}>
+              {lyrics}
+            </Typography>
+          </CardContent>
+        </Card>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

@@ -30,6 +30,7 @@ export function SearchView() {
 
   const handleChange = (e) => {
     const { name, value } = e;
+    setCurrentPage(1);
     setFormData({ ...formData, [name]: value });
   };
 
@@ -47,7 +48,9 @@ export function SearchView() {
 
     try {
       const response = await axios.get(
-        `http://localhost:8080/spotify/search?query=${query}&${tiposParam}&limit=${pageSize}&offset=${(currentPage-1) * pageSize}`,
+        `http://localhost:8080/spotify/search?query=${query}&${tiposParam}&limit=${pageSize}&offset=${
+          (currentPage - 1) * pageSize
+        }`,
 
         {
           params: {
@@ -118,17 +121,17 @@ export function SearchView() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    fetchResults()
+    fetchResults();
   };
 
   useEffect(() => {
-    fetchResults()
+    fetchResults();
   }, [currentPage, pageSize]);
 
   const handleSearchQueryChange = (value) => {
     setSearchQuery(value);
   };
-  
+
   return (
     <div className="sngs-containers" style={{ marginTop: "20px" }}>
       {results.length === 0 ? (

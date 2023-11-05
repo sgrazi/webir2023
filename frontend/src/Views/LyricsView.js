@@ -1,5 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Box, TextField, Pagination, PaginationItem, MenuItem, Typography, FormHelperText, FormControl, Select } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import {
+  Button,
+  Box,
+  TextField,
+  Pagination,
+  PaginationItem,
+  MenuItem,
+  Typography,
+  FormHelperText,
+  FormControl,
+  Select,
+} from "@mui/material";
 import axios from "axios";
 import { ResultView } from "../Views/ResultView";
 
@@ -13,12 +24,12 @@ export function LyricsView() {
   const [artistQuery, setArtistQuery] = useState("");
   const [orderBy, setOrderBy] = useState("Relevancia");
 
-
   const rangeValues = Array.from({ length: maxAmmount }, (_, i) => i + 1);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    fetchResults()
+    setCurrentPage(1);
+    fetchResults();
   };
 
   const fetchResults = () => {
@@ -32,7 +43,11 @@ export function LyricsView() {
     if (query !== "")
       // Change the URL and set the results correctly
       axios
-        .get(`http://localhost:8080/elastic/search?${query}&orderBy=${orderBy}&limit=${pageSize}&offset=${(currentPage-1) * pageSize}`)
+        .get(
+          `http://localhost:8080/elastic/search?${query}&orderBy=${orderBy}&limit=${pageSize}&offset=${
+            (currentPage - 1) * pageSize
+          }`
+        )
         .then((response) => {
           setResults(response.data);
         })
@@ -42,7 +57,7 @@ export function LyricsView() {
   };
 
   useEffect(() => {
-    fetchResults()
+    fetchResults();
   }, [currentPage, pageSize]);
 
   return (
@@ -108,16 +123,14 @@ export function LyricsView() {
         </Button>
       </Box>
       {results && (
-        <div className="results-container">
-          <ResultView
+        <ResultView
           currentPageSize={pageSize}
-          handlePageSizeChange={ (e) => setPageSize(e.target.value) }
+          handlePageSizeChange={(e) => setPageSize(e.target.value)}
           currentPage={currentPage}
           handlePageChange={(_, page) => setCurrentPage(page)}
           results={results}
           isFromElastic={true}
         />
-        </div>
       )}
     </div>
   );

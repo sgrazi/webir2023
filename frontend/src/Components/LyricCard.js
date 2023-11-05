@@ -3,9 +3,8 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import CardActionArea from "@mui/material/CardActionArea";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 
-export function LyricCard({ song, artist, lyrics, year, views, onClick }) {
+export function LyricCard({ id, song, artist, lyrics, year, views, onClick }) {
   return (
     <Card
       sx={{
@@ -15,7 +14,7 @@ export function LyricCard({ song, artist, lyrics, year, views, onClick }) {
         marginBottom: 1,
       }}
       style={{ cursor: "pointer" }}
-      onClick={() => onClick(lyrics)}
+      onClick={() => onClick(id, lyrics)}
     >
       <CardActionArea
         sx={{
